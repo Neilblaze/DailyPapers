@@ -1,0 +1,69 @@
+name: Fetch arXiv Papers
+
+on:
+  schedule:
+    - cron: '0 2 * * *' 
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch_papers:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install arxiv
+
+    - name: Configure git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    # --- Fetch cs.CL papers ---
+    - name: Find the last date in cs.CL
+      run: |
+        last_date=$(find cs.CL -type f -name '*.md' -printf "%f\n" 2>/dev/null | sort -r | head -n 1 | cut -c 1-8)
+        if [ -z "$last_date" ]; then
+          last_date=$(date -d "yesterday" +"%Y%m%d")
+        fi
+        echo "LAST_DATE_CL=${last_date}" >> $GITHUB_ENV
+
+    - name: Fetch cs.CL papers
+      run: |
+        next_date=$(date -d "$LAST_DATE_CL" +"%Y-%m-%d")
+        end_date=$(date -d "yesterday" +"%Y-%m-%d")
+        python arxiv_collect.py --catalog cs.CL --start_date $next_date --end_date $end_date
+
+    # --- Fetch cs.IR papers ---
+    - name: Find the last date in cs.IR
+      run: |
+        last_date=$(find cs.IR -type f -name '*.md' -printf "%f\n" 2>/dev/null | sort -r | head -n 1 | cut -c 1-8)
+        if [ -z "$last_date" ]; then
+          last_date=$(date -d "yesterday" +"%Y%m%d")
+        fi
+        echo "LAST_DATE_IR=${last_date}" >> $GITHUB_ENV
+
+    - name: Fetch cs.IR papers
+      run: |
+        next_date=$(date -d "$LAST_DATE_IR" +"%Y-%m-%d")
+        end_date=$(date -d "yesterday" +"%Y-%m-%d")
+        python arxiv_collect.py --catalog cs.IR --start_date $next_date --end_date $end_date
+
+    - name: Regenerate calendars
+      run: python calendar_generator.py
+
+    - name: Commit and push changes
+      run: |
+        git add .
+        git commit -m "Add fetched papers for $(date -d 'yesterday' +'%Y-%m-%d')" || echo "No changes to commit"
+        git push
