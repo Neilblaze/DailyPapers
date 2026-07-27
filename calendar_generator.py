@@ -7,6 +7,10 @@ def generate_calendar(base_dir, output_file):
     years.sort(reverse=True)
 
     category = os.path.basename(base_dir)
+
+    output_dir = os.path.dirname(output_file) or "."
+    link_prefix = os.path.relpath(base_dir, output_dir)
+
     all_markdown = f"# Calendar of arXiv papers for {category}\n\n"
     
     for year in years:
@@ -45,7 +49,7 @@ def generate_calendar(base_dir, output_file):
                     if day == 0:
                         week_str += "  | "
                     elif day in days_with_articles[int(month)]:
-                        week_str += f"[{day}]({base_dir}/{year}/{month.zfill(2)}/{year}{month.zfill(2)}{str(day).zfill(2)}.md) | "
+                        week_str += f"[{day}]({link_prefix}/{year}/{month.zfill(2)}/{year}{month.zfill(2)}{str(day).zfill(2)}.md) | "
                     else:
                         week_str += f"{day} | "
                 all_markdown += week_str + "\n"
@@ -58,3 +62,4 @@ def generate_calendar(base_dir, output_file):
 if __name__ == "__main__":
     generate_calendar("./cs.CL", "calendar/calendar_CL.md")
     generate_calendar("./cs.IR", "calendar/calendar_IR.md")
+
