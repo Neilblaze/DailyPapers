@@ -8,8 +8,8 @@ Papers are fetched via the [arXiv API](https://info.arxiv.org/help/api/tou.html)
 
 Find papers by date using the interactive calendars:
 
-- [cs.CL calendar](calendar_CL.md)
-- [cs.IR calendar](calendar_IR.md)
+- [cs.CL calendar](calendar/calendar_CL.md)
+- [cs.IR calendar](calendar/calendar_IR.md)
 
 ## Run locally
 

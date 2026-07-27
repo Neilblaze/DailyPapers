@@ -56,5 +56,5 @@ def generate_calendar(base_dir, output_file):
 
 
 if __name__ == "__main__":
-    generate_calendar("./cs.CL", "calendar_CL.md")
-    generate_calendar("./cs.IR", "calendar_IR.md")
+    generate_calendar("./cs.CL", "calendar/calendar_CL.md")
+    generate_calendar("./cs.IR", "calendar/calendar_IR.md")
